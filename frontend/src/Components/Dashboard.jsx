@@ -1,145 +1,257 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+// import { useEffect, useState } from 'react';
+// import axios from 'axios';
+// import TaskCard from './TaskCard';
+// import LogoutBtn from './LogoutButton';
 
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const [showForm, setShowForm] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm();
+// function Dashboard() {
+//   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+//   const [user,setUser] = useState()
+//   const [tasks, setTasks] = useState([]);
+//   const [newTask, setNewTask] = useState({
+//     title: '',
+//     description: '',
+//     assignedTo: '' // assuming you will select user ID later
+//   });
 
-  // Handle form submission
-  const onSubmit = async (data) => {
-    const history = useHistory();
-    console.log(data); // show data in console
-    const responsePost = await axios.post('http://localhost:5000/task', { ...data, status: 'in-progress' });
-    console.log(responsePost);
-    setSuccessMessage('Task Added Successfully! 🎉'); // set success msg
-    reset(); // clear the form after submit
-  };
+//   useEffect(() => {
+//     fetchTasks();
+//   }, []);
 
-  const handleAddTaskClick = () => {
-    setShowForm(true); // show the form when "Add Task" is clicked
-    setSuccessMessage(''); // clear old success message if any
-  };
+//   const fetchTasks = async () => {
+//     try {
+//       const res = await axios.get(`https://backend-of-femhack-production.up.railway.app/api/task`);
+//       console.log(res.data);  // Log the response to check data
+//       setTasks(res.data);
+//     } catch (err) {
+//       console.error("Error fetching tasks:", err);
+//     }
+//   };
 
-  // Handle "In Progress" button click
-  const handleInProgressClick = async () => {
-    setShowForm(false); // hide the form when "In Progress" is clicked
-    setLoading(true); // start loading when fetching tasks
-    try {
-      const response = await axios.get('http://localhost:5000/task');
-      setTasks(response.data); // set tasks from backend
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-    }
-    setLoading(false); // stop loading after tasks are fetched
-  };
-    // Handle "Done?" button click to update task status
-    const handleDoneClick = async (taskId) => {
-      try {
-        const response = await axios.put(`http://localhost:5000/task/${taskId}`, { status: 'done' });
-        if (response.status === 200) {
-          // Update the local tasks state to reflect the status change
-          setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-              task.id === taskId ? { ...task, status: 'done' } : task
-            )
-          );
-        }
-      } catch (error) {
-        console.error('Error updating task status:', error);
-      }
-    };
-    const handleLogout = () => {
-      // Remove the token from localStorage
-      localStorage.removeItem('token'); 
+//   const addTask = async () => {
+//     if (newTask.title.trim() === '' || newTask.description.trim() === '') return;
+//     console.log(newTask)
+//     const userId = localStorage.getItem("token");
+//   let response = await axios.get(`https://backend-of-femhack-production.up.railway.app/api/signup`)
+//   console.log(response.data[0].token)
+//   if (response.data){
+//     const user = response.data.find((user) => user.token === userId);
+    
+//     if (user) {
+//       console.log(user.email)
+//       try {
+//         const response = await axios.post(`https://backend-of-femhack-production.up.railway.app/api/task`, {
+//           title: newTask.title,
+//           description: newTask.description,
+//           status: 'To Do',
+//           assignedTo: user.email
+//         });
+//         console.log("Task created:", response.data);
+//         setNewTask({ title: '', description: '', assignedTo: '' });
+//         fetchTasks();
+//       } catch (error) {
+//         console.error("Error creating task:", error.response ? error.response.data : error.message);
+//       }
+//       console.log("User found:", user);
+//       setUser(user); 
+      
+//     } else {
+//       console.log("User with matching token not found.");
+//     }
+//   } else {
+//     console.log("No data received from the server.");
+//   }
+
+//     if (!userId) {
+//       console.log("User not logged in");
+//       return;
+//     }
   
-      navigate('/login');
-    };
+
+//   };
+
+//   const changeStatus = async (id, newStatus) => {
+//     console.log(`Changing task ${id} status to ${newStatus}`);  // Log the task update
+//     await axios.put(`https://backend-of-femhack-production.up.railway.app/api/task/${id}`, { status: newStatus });
+//     fetchTasks();  // Refetch the tasks after status change
+//   };
+
+//   const deleteTask = async (id) => {
+//     await axios.delete(`https://backend-of-femhack-production.up.railway.app/api/task/${id}`);
+//     fetchTasks();
+//   };
+
+//   return (
+//     <div className="p-8 bg-pink-50 min-h-screen flex flex-col items-center">
+//       <LogoutBtn/> 
+//       <h1 className="text-4xl text-pink-500 font-bold mb-8">Task Board</h1>
+
+//   {/* add task  */}
+//       <div className="flex flex-col gap-2 mb-8 w-96">
+//         <input
+//           type="text"
+//           value={newTask.title}
+//           onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+//           placeholder="Enter task title"
+//           className="p-2 rounded border border-pink-300"
+//         />
+//         <textarea
+//           value={newTask.description}
+//           onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+//           placeholder="Enter task description"
+//           className="p-2 rounded border border-pink-300"
+//         />
+
+//         <button
+//           onClick={addTask}
+//           className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 mt-2"
+//         >
+//           Add Task
+//         </button>
+//       </div>
+
+//       {/* Task column where my task appear */}
+//       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+//         {['To Do', 'In Progress', 'Done'].map((stage) => (
+//           <div key={stage} className="bg-white p-4 rounded-lg shadow-md">
+//             <h2 className="text-xl font-bold text-center mb-4">{stage}</h2>
+//             {tasks.filter((task) => task.status === stage).map((task) => (
+//   <TaskCard key={task._id} task={task} changeStatus={changeStatus} deleteTask={deleteTask} />
+// ))}
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default Dashboard;
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import TaskCard from './TaskCard';
+import LogoutBtn from './LogoutButton';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+function Dashboard() {
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const [user, setUser] = useState();
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    assignedTo: ''
+  });
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const res = await axios.get(`https://backend-of-femhack-production.up.railway.app/api/task`);
+      setTasks(res.data);
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+    }
+  };
+
+  const addTask = async () => {
+    if (newTask.title.trim() === '' || newTask.description.trim() === '') return;
+    const userId = localStorage.getItem("token");
+    let response = await axios.get(`https://backend-of-femhack-production.up.railway.app/api/signup`);
+    if (response.data) {
+      const user = response.data.find((user) => user.token === userId);
+      if (user) {
+        try {
+          const response = await axios.post(`https://backend-of-femhack-production.up.railway.app/api/task`, {
+            title: newTask.title,
+            description: newTask.description,
+            status: 'To Do',
+            assignedTo: user.email
+          });
+          setNewTask({ title: '', description: '', assignedTo: '' });
+          fetchTasks();
+        } catch (error) {
+          console.error("Error creating task:", error.response ? error.response.data : error.message);
+        }
+        setUser(user);
+      }
+    }
+  };
+
+  const changeStatus = async (id, newStatus) => {
+    await axios.put(`https://backend-of-femhack-production.up.railway.app/api/task/${id}`, { status: newStatus });
+    fetchTasks();
+  };
+
+  const deleteTask = async (id) => {
+    await axios.delete(`https://backend-of-femhack-production.up.railway.app/api/task/${id}`);
+    fetchTasks();
+  };
+
   return (
-    <main className=''>
+    <div className="p-8 bg-gradient-to-br from-[#ffeaa7] via-[#fdcb6e] to-[#ffeaa7] min-h-screen flex flex-col items-center">
+      <LogoutBtn />
+      <h1 className="text-4xl font-extrabold text-gray-800 mb-8">Task Board</h1>
 
-      <h1 className='font-bold text-[30px] ps-4 border'>Task Manager</h1>
-      <button className='border text-black cursor-pointer' onClick={handleLogout}>logout</button>
-      <div className='grid grid-cols-12 py-5 px-5 h-screen'>
-        {/* left side */}
-        <div className='col-span-2 flex flex-col justify-start items-start gap-3 border-e'>
-          <div className='border py-2 px-3 hover:bg-black hover:text-white hover:cursor-pointer' onClick={handleAddTaskClick}>
-            <button className='font-bold'>Add Task</button>
-          </div>
-          <div className='border py-2 px-3 hover:bg-black hover:text-white hover:cursor-pointer' onClick={handleInProgressClick}>
-            <button className='font-bold'>In Progress</button>
-          </div>
-          <div className='border py-2 px-3 hover:bg-black hover:text-white hover:cursor-pointer'>
-            <button className='font-bold'>Done</button>
-          </div>
-        </div>
-
-        {/* right side */}
-        <div className='col-span-9'>
-          {/* Form for adding tasks */}
-          {showForm && (
-            <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4'>
-              <input
-                placeholder='Task Name'
-                {...register('taskName', { required: 'Task Name is required' })}
-                className='border p-2'
-              />
-              {errors.taskName && <div className='text-red-500'>{errors.taskName.message}</div>}
-
-              <input
-                placeholder='Task Description'
-                {...register('taskDescription', { required: 'Description is required' })}
-                className='border p-2'
-              />
-              {errors.taskDescription && <div className='text-red-500'>{errors.taskDescription.message}</div>}
-
-              <input
-                disabled={isSubmitting}
-                type='submit'
-                value='Add Task'
-                className='bg-black text-white py-2 px-4 rounded hover:bg-gray-800 cursor-pointer'
-              />
-            </form>
-          )}
-
-          {/* Display success message */}
-          {successMessage && (
-            <div className='text-green-500 font-bold mt-4'>
-              {successMessage}
-            </div>
-          )}
-
-          {/* Loading and task list */}
-          {loading && <div>Loading tasks...</div>}
-
-          {/* Show tasks in progress */}
-          <div className='mt-4'>
-            {tasks.length > 0 ? (
-              tasks.map((task) => (
-                <div key={task.id} className='border p-2 mb-2'>
-                  <h3 className='font-bold'>{task.TaskName}</h3>
-                  <p>{task.TaskDetail}</p>
-                  <button onClick={() => handleDoneClick(task.id)} className='border hover:text-white hover:bg-black py-1 px-3 rounded-full'>Done?</button>
-                </div>
-              ))
-            ) : (
-              <div>No tasks in progress</div>
-            )}
-          </div>
-        </div>
+      {/* Add task */}
+      <div className="flex flex-col gap-2 mb-8 w-96 bg-white p-6 rounded-lg shadow-lg">
+        <input
+          type="text"
+          value={newTask.title}
+          onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+          placeholder="Enter task title"
+          className="p-2 rounded-lg border border-[#fdcb6e] focus:ring-2 focus:ring-[#fdcb6e]"
+        />
+        <textarea
+          value={newTask.description}
+          onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+          placeholder="Enter task description"
+          className="p-2 rounded-lg border border-[#fdcb6e] focus:ring-2 focus:ring-[#fdcb6e]"
+        />
+        <button
+          onClick={addTask}
+          className="bg-[#fdcb6e] text-white px-6 py-2 rounded-full hover:bg-[#ffeaa7] transition-all duration-300"
+        >
+          Add Task
+        </button>
       </div>
-    </main>
+
+      {/* Task columns with drag-and-drop */}
+      <DragDropContext onDragEnd={() => {}}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+          {['To Do', 'In Progress', 'Done'].map((stage) => (
+            <Droppable key={stage} droppableId={stage}>
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="bg-white p-6 rounded-lg shadow-lg"
+                >
+                  <h2 className="text-xl font-bold text-center mb-4">{stage}</h2>
+                  {tasks
+                    .filter((task) => task.status === stage)
+                    .map((task, index) => (
+                      <Draggable key={task._id} draggableId={task._id} index={index}>
+                        {(provided) => (
+                          <TaskCard
+                            key={task._id}
+                            task={task}
+                            changeStatus={changeStatus}
+                            deleteTask={deleteTask}
+                            provided={provided}
+                          />
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          ))}
+        </div>
+      </DragDropContext>
+    </div>
   );
-};
+}
 
 export default Dashboard;

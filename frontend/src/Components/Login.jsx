@@ -1,49 +1,44 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const Login = () => {
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false) 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true)
+      setIsLoggedIn(true);
     } else {
-      setIsLoggedIn(false)
+      setIsLoggedIn(false);
     }
-  }, [])
+  }, []);
 
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-
-      // Check if user already exists
-      const responseGet = await axios.get("http://localhost:5000/signup");
+      const responseGet = await axios.get(`https://backend-of-femhack-production.up.railway.app/api/signup`);
       const user = responseGet.data.find(user => user.email === data.email);
-      const checkEmail = responseGet.data.find(checkEmail => checkEmail.email === data.email || checkEmail.password ==data.password);
+      const checkEmail = responseGet.data.find(checkEmail => checkEmail.email === data.email || checkEmail.password == data.password);
       if (!user) {
-        // User with that email doesn't exist
         alert("User not found, please create an account 🥺");
         navigate("/");
       } else {
         if (user.password !== data.password) {
-          // Email is correct but password is wrong
           alert("Incorrect credentials 😭");
         } else {
-          // Both email and password are correct
           alert("Login successful! 🥰");
           localStorage.setItem("token", user.token);
-          console.log(user.token);
           navigate("/dashboard");
-        }}
-
-
-      
+        }
+      }
     } catch (e) {
       setLoading(false);
       if (e.response && e.response.status === 400) {
@@ -57,94 +52,128 @@ const Login = () => {
   };
 
   return (
-    <section className="relative py-6">
+    <section className="relative py-6 bg-gradient-to-r from-[#ffeaa7] to-[#fdcb6e] min-h-screen">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
-        <div className="">
-          <h1 className='text-[32px] font-extrabold boldFont w-40'></h1>
+        <div className="text-center">
+          <h1 className="text-[36px] font-extrabold text-white">Welcome Back!</h1>
         </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center my-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-black"></div>
-            <p className="mt-4 text-black font-semibold">Please wait... Redirecting you 🥹</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-white"></div>
+            <p className="mt-4 text-white font-semibold">Please wait... Redirecting you 🥹</p>
           </div>
         ) : (
-          <div className="w-full rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0">
-            <div className="p-6 space-y-2 md:space-y-2 sm:p-8">
-              <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
-                Sign in
-              </h1>
+          <div className="w-full rounded-lg shadow-md bg-white p-8 space-y-6">
+            <h1 className="text-2xl text-center font-bold leading-tight tracking-tight text-gray-900">
+              Sign in
+            </h1>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 md:space-y-2">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
+                  Your Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  className="w-full px-4 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#fdcb6e] focus:outline-none"
+                  placeholder="name@company.com"
+                  {...register("email", {
+                    required: { value: true, message: "This field is required" },
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Enter a valid email address"
+                    },
+                  })}
+                />
+                {errors.email && <div className="text-red-500">{errors.email.message}</div>}
+              </div>
 
-                {/* Email */}
-                <div>
-                  <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
-                    Your Email
-                  </label>
+              {/* Password */}
+              <div>
+                <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
+                  Password
+                </label>
+                <div className="flex items-center border border-gray-300 rounded-lg">
                   <input
-                    type="email"
-                    id="email"
-                    className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                    placeholder="name@company.com"
-                    {...register("email", {
-                      required: { value: true, message: "This field is required" },
-                      pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: "Enter a valid email address"
-                      },
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    className="w-full px-4 py-2 text-sm rounded-lg focus:outline-none"
+                    placeholder="••••••••"
+                    {...register("password", {
+                      required: { value: true, message: "Password is required" },
                     })}
                   />
-                  {errors.email && <div className='text-red-700'>{errors.email.message}</div>}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="px-4 py-2 text-gray-500"
+                  >
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
                 </div>
+                {errors.password && <div className="text-red-500">{errors.password.message}</div>}
+              </div>
 
-                {/* Password */}
-                <div>
-                  <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
-                    Password
-                  </label>
-                  <div className="flex px-2 justify-between border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      placeholder="••••••••"
-                      className="text-gray-900 text-sm focus:ring-0 focus:outline-0 block w-full p-2.5"
-                      {...register("password", {
-                        required: { value: true, message: "Password is required" },
-                      })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="transform text-gray-600"
-                    >
-                      {showPassword ? "🙈" : "👁️"}
-                    </button>
+              <button
+                type="submit"
+                className="w-full bg-[#fdcb6e] text-white py-2 px-4 rounded-lg focus:ring-4 focus:ring-[#fdcb6e] hover:bg-[#ffeaa7]"
+              >
+                Sign in
+              </button>
+
+              <p className="text-sm font-light text-gray-500">
+                Doesn't have an account?{" "}
+                <Link to="/" className="font-medium text-sky-600 hover:underline">
+                  Signup
+                </Link>
+              </p>
+            </form>
+
+            <DragDropContext onDragEnd={() => {}}>
+              <Droppable droppableId="droppable" direction="horizontal">
+                {(provided) => (
+                  <div
+                    className="mt-4 flex space-x-4"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {/* Example of drag and drop items */}
+                    <Draggable draggableId="item-1" index={0}>
+                      {(provided) => (
+                        <div
+                          className="p-4 rounded-lg bg-[#fdcb6e] text-white"
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          Item 1
+                        </div>
+                      )}
+                    </Draggable>
+                    <Draggable draggableId="item-2" index={1}>
+                      {(provided) => (
+                        <div
+                          className="p-4 rounded-lg bg-[#fdcb6e] text-white"
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          Item 2
+                        </div>
+                      )}
+                    </Draggable>
                   </div>
-                  {errors.password && <div className='text-red-700'>{errors.password.message}</div>}
-                </div>
-
-                <button
-                  type="submit"
-                  className="cursor-pointer w-full text-white bg-black hover:bg-black focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
-                  Sign in
-                </button>
-
-                <p className="text-sm font-light text-gray-500">
-                  Doesn't have an account?{" "}
-                  <Link to='/' className="font-medium text-primary-600 hover:underline">
-                    Signup
-                  </Link>
-                </p>
-              </form>
-
-            </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
         )}
       </div>
     </section>
-  )
-}
+  );
+};
 
 export default Login;
