@@ -44,7 +44,7 @@ const Signup = () => {
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#ffeaa7] via-[#fdcb6e] to-[#ffeaa7] px-4">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transition-all duration-300 hover:scale-[1.02]">
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">Trello</h1>
+          <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">Traking App</h1>
           <p className="mt-2 text-gray-500 text-sm">Organize your life, beautifully ✨</p>
         </div>
 
@@ -69,7 +69,7 @@ const Signup = () => {
                   maxLength: { value: 8, message: "Maximum 8 characters" }
                 })}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#fdcb6e] focus:outline-none"
-                placeholder="Javeriya Saleem"
+                placeholder="Areesha"
               />
               {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
             </div>
